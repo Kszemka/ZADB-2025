@@ -17,7 +17,8 @@ class EmployeeService
         position:    ctx.position,
         hire_date:   now.to_date,
         created_at:  now.to_date,
-        updated_at:  now.to_date
+        updated_at:  now.to_date,
+        is_active:   true
       )
 
       ::EmploymentHistoryService.add_new_record(
@@ -85,6 +86,18 @@ class EmployeeService
 
       employee.destroy!
 
+      last_position.update!(status: Position::OPEN)
+
+      self.employee = employee
+    end
+  end
+
+  def self.fire_employee(ctx)
+    employee = ctx.employee
+    last_position = employee.position
+
+    Employee.transaction do
+      employee.update!(is_active: false)
       last_position.update!(status: Position::OPEN)
 
       self.employee = employee
