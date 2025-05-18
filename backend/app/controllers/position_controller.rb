@@ -1,6 +1,6 @@
 class PositionController < ApplicationController
-    # GET /employees/
-    def index
+    # GET /position/all
+    def all
       @positions = Position.all
       render json: @positions
     end

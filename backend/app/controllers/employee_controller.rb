@@ -1,11 +1,30 @@
 class EmployeeController < ApplicationController
-    # GET /all_employees
+    # GET employee/all_employees
     def all_employees
-      @employees = Employee.all
-      render json: @employees
+      response = Employee.all
+      render json: response
     end
 
+    # POST employee/hire
     def hire
-      render json: "OK"
-    end  
+      response = Employee::EmployeeAddInteractor.run(params)
+      render json: response, status: (response.valid? ? :ok : :unprocessable_entity)
+    end
+
+    # PUT employee/update
+    def update
+      response = Employee::EmployeeUpdateInteractor.run(params)
+      render json: response, status: (response.valid? ? :ok : :unprocessable_entity)
+    end
+
+    # delete employee/delete
+    def delete
+      interactor = Employee::EmployeeFireInteractor.run(params)
+      return render json: interactor, status: :unprocessable_entity unless interactor.valid?
+
+      interactor.delete_hard
+      render json: { result: 'Employee hard-deleted' }, status: :ok
+    end
+
+
 end

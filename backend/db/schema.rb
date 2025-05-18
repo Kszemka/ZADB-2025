@@ -65,15 +65,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
       t.string   "email",       null: false
       t.date     "hire_date",   null: false
       t.bigint   "manager_id"
-      t.bigint   "department_id"
       t.bigint   "position_id"
       t.datetime "created_at",  null: false
       t.datetime "updated_at",  null: false
     end
     add_index "employees", ["email"], name: "index_employees_on_email", unique: true
-    add_index "employees", ["department_id"], name: "index_employees_on_department_id"
     add_foreign_key "employees", "employees", column: "manager_id"
-    add_foreign_key "employees", "departments"
     add_foreign_key "employees", "positions"
   
     # Employment Histories

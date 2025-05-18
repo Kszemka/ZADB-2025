@@ -1,48 +1,136 @@
-departments = Department.create!([
-  { id: 1, name: 'Head Office',      parent_department_id: nil },
-  { id: 2, name: 'Human Resources',  parent_department_id: 1 },
-  { id: 3, name: 'IT',               parent_department_id: 1 },
-  { id: 4, name: 'Finance',          parent_department_id: 1 }
-])
+ActiveRecord::Base.connection.tables.each do |t|
+  ActiveRecord::Base.connection.reset_pk_sequence!(t)
+end
 
-locations = Location.create!([
-  { id: 1, city: 'Warsaw',   state: 'Mazowieckie',    country: 'Poland' },
-  { id: 2, city: 'Kraków',   state: 'Małopolskie',    country: 'Poland' },
-  { id: 3, city: 'London',   state: 'Greater London', country: 'UK' },
-  { id: 4, city: 'New York', state: 'NY',             country: 'USA' }
-])
+# Departments
+Department.create!(name: 'Head Office')
+Department.create!(name: 'Human Resources', parent_department: Department.find_by(name: 'Head Office'))
+Department.create!(name: 'IT',              parent_department: Department.find_by(name: 'Head Office'))
+Department.create!(name: 'Finance',         parent_department: Department.find_by(name: 'Head Office'))
 
-jobs = Job.create!([
-  { id: 1, code: 'HR_SPEC', title: 'HR Specialist',        min_salary: 4000, max_salary: 7000 },
-  { id: 2, code: 'ENG_I',   title: 'Software Engineer I',  min_salary: 8000, max_salary: 12000 },
-  { id: 3, code: 'FIN_MGR', title: 'Finance Manager',      min_salary: 10000, max_salary: 15000 }
-])
+# Locations
+Location.create!(city: 'Warsaw',   state: 'Mazowieckie',    country: 'Poland')
+Location.create!(city: 'Kraków',   state: 'Małopolskie',    country: 'Poland')
+Location.create!(city: 'London',   state: 'Greater London', country: 'UK')
+Location.create!(city: 'New York', state: 'NY',             country: 'USA')
 
-positions = Position.create!([
-  { id: 1, job: jobs[1], department: departments[2], location: locations[0], status: 'FILLED', posted_date: '2024-01-10' },
-  { id: 2, job: jobs[0], department: departments[1], location: locations[0], status: 'FILLED', posted_date: '2024-02-15' },
-  { id: 3, job: jobs[2], department: departments[3], location: locations[3], status: 'OPEN',   posted_date: '2025-05-01' },
-  { id: 4, job: jobs[1], department: departments[2], location: locations[1], status: 'OPEN',   posted_date: '2025-04-20' }
-])
+# Jobs
+Job.create!(code: 'HR_SPEC', title: 'HR Specialist',       min_salary: 4000,  max_salary: 7000)
+Job.create!(code: 'ENG_I',   title: 'Software Engineer I', min_salary: 8000,  max_salary: 12000)
+Job.create!(code: 'FIN_MGR', title: 'Finance Manager',     min_salary: 10000, max_salary: 15000)
 
-employees = Employee.create!([
-  { id: 1, first_name: 'Anna',      last_name: 'Kowalska',     email: 'anna.kowalska@company.com', hire_date: '2023-06-01', manager_id: nil, department: departments[0], position: positions[2] },
-  { id: 2, first_name: 'Jan',       last_name: 'Nowak',        email: 'jan.nowak@company.com',    hire_date: '2023-07-10', manager_id: employees&.find { |e| e.id == 1 }, department: departments[1], position: positions[1] },
-  { id: 3, first_name: 'Katarzyna', last_name: 'Wiśniewska',  email: 'kasia.wisniewska@company.com', hire_date: '2024-01-05', manager_id: employees&.find { |e| e.id == 1 }, department: departments[2], position: positions[0] }
-])
+# Positions
+Position.create!(
+  job:          Job.find_by(code: 'ENG_I'),
+  department:   Department.find_by(name: 'IT'),
+  location:     Location.find_by(city: 'Warsaw'),
+  status:       Position::OCCUPIED,
+  posted_date:  '2024-01-10'
+)
+Position.create!(
+  job:          Job.find_by(code: 'HR_SPEC'),
+  department:   Department.find_by(name: 'Human Resources'),
+  location:     Location.find_by(city: 'Warsaw'),
+  status:       Position::OCCUPIED,
+  posted_date:  '2024-02-15'
+)
+Position.create!(
+  job:          Job.find_by(code: 'FIN_MGR'),
+  department:   Department.find_by(name: 'Finance'),
+  location:     Location.find_by(city: 'New York'),
+  status:       Position::OCCUPIED,
+  posted_date:  '2025-05-01'
+)
+Position.create!(
+  job:          Job.find_by(code: 'ENG_I'),
+  department:   Department.find_by(name: 'IT'),
+  location:     Location.find_by(city: 'Kraków'),
+  status:       Position::OPEN,
+  posted_date:  '2025-04-20'
+)
 
-EmploymentHistory.create!([
-  { employee: employees[1], position: positions[1], start_date: '2023-07-10', end_date: nil, department: departments[1], manager: employees[0] },
-  { employee: employees[2], position: positions[0], start_date: '2024-01-05', end_date: nil, department: departments[2], manager: employees[0] }
-])
+# Employees
+Employee.create!(
+  first_name: 'Anna',
+  last_name:  'Kowalska',
+  email:      'anna.kowalska@company.com',
+  hire_date:  '2023-06-01',
+  position:   Position.find_by(posted_date: '2025-05-01')
+)
+Employee.create!(
+  first_name: 'Jan',
+  last_name:  'Nowak',
+  email:      'jan.nowak@company.com',
+  hire_date:  '2023-07-10',
+  manager:    Employee.find_by(email: 'anna.kowalska@company.com'),
+  position:   Position.find_by(posted_date: '2024-02-15')
+)
+Employee.create!(
+  first_name: 'Katarzyna',
+  last_name:  'Wiśniewska',
+  email:      'kasia.wisniewska@company.com',
+  hire_date:  '2024-01-05',
+  manager:    Employee.find_by(email: 'anna.kowalska@company.com'),
+  position:   Position.find_by(posted_date: '2024-01-10')
+)
 
-Compensation.create!([
-  { employee: employees[1], amount: 5000,  currency: 'PLN', effective_date: '2023-07-10', frequency: 'MONTHLY' },
-  { employee: employees[2], amount: 9000,  currency: 'PLN', effective_date: '2024-01-05', frequency: 'MONTHLY' },
-  { employee: employees[0], amount: 15000, currency: 'PLN', effective_date: '2023-06-01', frequency: 'MONTHLY' }
-])
+# Employment Histories
+EmploymentHistory.create!(
+  employee:   Employee.find_by(email: 'jan.nowak@company.com'),
+  position:   Position.find_by(posted_date: '2024-02-15'),
+  start_date: '2023-07-10',
+  end_date:   nil,
+  department: Department.find_by(name: 'Human Resources'),
+  manager:    Employee.find_by(email: 'anna.kowalska@company.com')
+)
+EmploymentHistory.create!(
+  employee:   Employee.find_by(email: 'kasia.wisniewska@company.com'),
+  position:   Position.find_by(posted_date: '2024-01-10'),
+  start_date: '2024-01-05',
+  end_date:   nil,
+  department: Department.find_by(name: 'IT'),
+  manager:    Employee.find_by(email: 'anna.kowalska@company.com')
+)
 
-TimeOffRequest.create!([
-  { employee: employees[1], request_type: 'VACATION', start_date: '2025-06-01', end_date: '2025-06-10', status: 'APPROVED', requested_date: '2025-05-01', approved_by: employees[0].id, approved_date: '2025-05-05' },
-  { employee: employees[2], request_type: 'SICK',     start_date: '2025-05-12', end_date: '2025-05-14', status: 'PENDING',  requested_date: '2025-05-10' },
-])
+# Compensations
+# Compensation.create!(
+#   employee:       Employee.find_by(email: 'jan.nowak@company.com'),
+#   amount:         5000,
+#   currency:       'PLN',
+#   effective_date: '2023-07-10',
+#   frequency:      'MONTHLY'
+# )
+# Compensation.create!(
+#   employee:       Employee.find_by(email: 'kasia.wisniewska@company.com'),
+#   amount:         9000,
+#   currency:       'PLN',
+#   effective_date: '2024-01-05',
+#   frequency:      'MONTHLY'
+# )
+# Compensation.create!(
+#   employee:       Employee.find_by(email: 'anna.kowalska@company.com'),
+#   amount:         15000,
+#   currency:       'PLN',
+#   effective_date: '2023-06-01',
+#   frequency:      'MONTHLY'
+# )
+
+# Time Off Requests
+TimeOffRequest.create!(
+  employee:       Employee.find_by(email: 'jan.nowak@company.com'),
+  request_type:   'VACATION',
+  start_date:     '2025-06-01',
+  end_date:       '2025-06-10',
+  status:         'APPROVED',
+  requested_date: '2025-05-01',
+  approved_by:    Employee.find_by(email: 'anna.kowalska@company.com').id,
+  approved_date:  '2025-05-05'
+)
+# TimeOffRequest.create!(
+#   employee:       Employee.find_by(email: 'kasia.wisniewska@company.com'),
+#   request_type:   'SICK',
+#   start_date:     '2025-05-12',
+#   end_date:       '2025-05-14',
+#   status:         'PENDING',
+#   requested_date: '2025-05-10'
+# )
