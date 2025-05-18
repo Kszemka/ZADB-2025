@@ -7,13 +7,16 @@ services:
     container_name: db
     ports:
       - "5432:5432"
+
   backend:
     build:
       context: ./backend
     container_name: backend
     ports:
-      - "5001:5000"
+    ports:
+      - "3000:3000"
     environment:
+      RAILS_ENV: development
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: db
@@ -21,3 +24,5 @@ services:
       DB_PASSWORD: admin
     depends_on:
       - db
+    volumes:
+      - ./backend:/app
