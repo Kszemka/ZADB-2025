@@ -51,45 +51,67 @@ Position.create!(
 
 # Employees
 Employee.create!(
-  first_name: 'Anna',
-  last_name:  'Kowalska',
-  email:      'anna.kowalska@company.com',
+  first_name: 'Anna',  last_name: 'Kowalska',
+  email:      'anna@company.com',
   hire_date:  '2023-06-01',
-  position:   Position.find_by(posted_date: '2025-05-01')
-)
-Employee.create!(
-  first_name: 'Jan',
-  last_name:  'Nowak',
-  email:      'jan.nowak@company.com',
-  hire_date:  '2023-07-10',
-  manager:    Employee.find_by(email: 'anna.kowalska@company.com'),
-  position:   Position.find_by(posted_date: '2024-02-15')
-)
-Employee.create!(
-  first_name: 'Katarzyna',
-  last_name:  'Wiśniewska',
-  email:      'kasia.wisniewska@company.com',
-  hire_date:  '2024-01-05',
-  manager:    Employee.find_by(email: 'anna.kowalska@company.com'),
-  position:   Position.find_by(posted_date: '2024-01-10')
+  position:   Position.find_by(posted_date: '2025-05-01'),
+  is_active:  true,
+  employment_history: [
+    { position_id: Position.find_by(posted_date: '2025-05-01').id,
+      department_id: Position.find_by(posted_date: '2025-05-01').department_id,
+      manager_id: nil,
+      start_date: '2023-06-01',
+      end_date: nil }
+  ]
 )
 
+Employee.create!(
+  first_name: 'Jan',   last_name: 'Nowak',
+  email:      'jan@company.com',
+  hire_date:  '2023-07-10',
+  position:   Position.find_by(posted_date: '2024-02-15'),
+  manager:    Employee.find_by(email: 'anna@company.com'),
+  is_active:  true,
+  employment_history: [
+    { position_id: Position.find_by(posted_date: '2024-02-15').id,
+      department_id: Position.find_by(posted_date: '2024-02-15').department_id,
+      manager_id: Employee.find_by(email: 'anna@company.com').id,
+      start_date: '2023-07-10',
+      end_date: nil }
+  ]
+)
+
+Employee.create!(
+  first_name: 'Kasia', last_name: 'Wiśniewska',
+  email:      'kasia@company.com',
+  hire_date:  '2024-01-05',
+  position:   Position.find_by(posted_date: '2024-01-10'),
+  manager:    Employee.find_by(email: 'anna@company.com'),
+  is_active:  true,
+  employment_history: [
+    { position_id: Position.find_by(posted_date: '2024-01-10').id,
+      department_id: Position.find_by(posted_date: '2024-01-10').department_id,
+      manager_id: Employee.find_by(email: 'anna@company.com').id,
+      start_date: '2024-01-05',
+      end_date: nil }
+  ]
+)
 # Employment Histories
 EmploymentHistory.create!(
-  employee:   Employee.find_by(email: 'jan.nowak@company.com'),
+  employee:   Employee.find_by(email: 'jan@company.com'),
   position:   Position.find_by(posted_date: '2024-02-15'),
   start_date: '2023-07-10',
   end_date:   nil,
   department: Department.find_by(name: 'Human Resources'),
-  manager:    Employee.find_by(email: 'anna.kowalska@company.com')
+  manager:    Employee.find_by(email: 'anna@company.com')
 )
 EmploymentHistory.create!(
-  employee:   Employee.find_by(email: 'kasia.wisniewska@company.com'),
+  employee:   Employee.find_by(email: 'kasia@company.com'),
   position:   Position.find_by(posted_date: '2024-01-10'),
   start_date: '2024-01-05',
   end_date:   nil,
   department: Department.find_by(name: 'IT'),
-  manager:    Employee.find_by(email: 'anna.kowalska@company.com')
+  manager:    Employee.find_by(email: 'anna@company.com')
 )
 
 # Compensations
@@ -117,13 +139,13 @@ EmploymentHistory.create!(
 
 # Time Off Requests
 TimeOffRequest.create!(
-  employee:       Employee.find_by(email: 'jan.nowak@company.com'),
+  employee:       Employee.find_by(email: 'jan@company.com'),
   request_type:   'VACATION',
   start_date:     '2025-06-01',
   end_date:       '2025-06-10',
   status:         'APPROVED',
   requested_date: '2025-05-01',
-  approved_by:    Employee.find_by(email: 'anna.kowalska@company.com').id,
+  approved_by:    Employee.find_by(email: 'anna@company.com').id,
   approved_date:  '2025-05-05'
 )
 # TimeOffRequest.create!(

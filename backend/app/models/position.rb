@@ -7,4 +7,5 @@ class Position < ApplicationRecord
   belongs_to :department
   belongs_to :location
 
+  has_many   :employees
 end

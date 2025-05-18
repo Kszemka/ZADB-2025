@@ -68,6 +68,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
       t.bigint   "position_id"
       t.datetime "created_at",  null: false
       t.datetime "updated_at",  null: false
+      t.jsonb    "employment_history",  null: false, default: "[]"
+      t.boolean  "is_active",   null: false
     end
     add_index "employees", ["email"], name: "index_employees_on_email", unique: true
     add_foreign_key "employees", "employees", column: "manager_id"

@@ -15,7 +15,7 @@ class Employee::EmployeeFireInteractor < ResponseService
   end
 
   def delete_soft
-
+    EmployeeService.fire_employee(self)
   end
 
   def delete_hard
