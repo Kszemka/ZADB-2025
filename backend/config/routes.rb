@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   resources :position, only: [] do
     collection do
       get  'all'
+      get  'withDetails'
     end
   end
 end
