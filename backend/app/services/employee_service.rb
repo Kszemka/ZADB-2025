@@ -38,7 +38,7 @@ class EmployeeService
     end
   end
 
-
+  # https://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
   def self.update_employee_information(ctx)
     now        = Time.current
     employee   = ctx.employee

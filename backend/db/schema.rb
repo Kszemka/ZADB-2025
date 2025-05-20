@@ -1,15 +1,3 @@
-# This file is auto-generated from the current state of the database. Instead
-# of editing this file, please use the migrations feature of Active Record to
-# incrementally modify your database, and then regenerate this schema definition.
-#
-# This file is the source Rails uses to define your schema when running `bin/rails
-# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
-# be faster and is potentially less error prone than running all of your
-# migrations from scratch. Old migrations may fail to apply correctly if those
-# migrations use external dependencies or application code.
-#
-# It's strongly recommended that you check this file into your version control system.
-
 ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -120,5 +108,40 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
     add_index "time_off_requests", ["status"], name: "index_time_off_requests_on_status"
     add_foreign_key "time_off_requests", "employees"
     add_foreign_key "time_off_requests", "employees", column: "approved_by"
+
+    create_table :operations do |t|
+      t.string :name, null: false
+      t.integer :counter, default: 0
+      t.timestamps
+    end
+
+    add_index :operations, :name, unique: true
+
+    reversible do |dir|
+      dir.up do
+        execute <<-SQL.squish
+            CREATE FUNCTION increment_operation_counter()
+            RETURNS TRIGGER AS $$
+            BEGIN
+              INSERT INTO operations (name, counter, created_at, updated_at)
+              VALUES ('employee', 1, NOW(), NOW())
+              ON CONFLICT (name) DO UPDATE
+              SET counter = operations.counter + 1,
+                  updated_at = NOW();
+              RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
   
-  end
+            CREATE TRIGGER increment_operation_trigger
+            AFTER INSERT OR UPDATE OR DELETE ON employees
+            FOR EACH ROW
+            EXECUTE PROCEDURE increment_operation_counter();
+          SQL
+      end
+
+      dir.down do
+        execute "DROP TRIGGER IF EXISTS increment_operation_trigger ON employees"
+        execute "DROP FUNCTION IF EXISTS increment_operation_counter()"
+      end
+    end
+end
