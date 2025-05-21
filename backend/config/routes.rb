@@ -13,6 +13,11 @@ Rails.application.routes.draw do
       put 'update'
       delete 'delete'
       patch 'delete_soft'
+      get 'inner_join'
+      get 'left_join'
+      get 'right_join'
+      get 'full_outer_join'
+      get 'cross_join'
     end
   end
 

@@ -35,6 +35,25 @@ class EmployeeController < ApplicationController
       render json: { result: 'Employee soft-deleted' }, status: :ok
     end
 
+    def inner_join
+      render json:Employee.joins(:position)
+    end
 
+    def left_join
+      render json:Employee.left_joins(:manager)
+                          .select('employees.*, managers_employees.first_name AS manager_name')
+    end
+
+    def right_join
+      render json:Position.joins("RIGHT JOIN employees ON employees.position_id = positions.id")
+    end
+
+    def full_outer_join
+      render json:Employee.joins("FULL OUTER JOIN positions ON employees.position_id = positions.id")
+    end
+
+    def cross_join
+      render json:Employee.joins("CROSS JOIN departments")
+    end
 
 end
