@@ -5,6 +5,12 @@ class EmployeeController < ApplicationController
       render json: response
     end
 
+    #GET employee/search
+    def search
+      response = Employee::EmployeeSearchInteractor.run(params)
+      render json: response, status: (response.valid? ? :ok : :unprocessable_entity)
+    end
+
     # POST employee/hire
     def hire
       response = Employee::EmployeeAddInteractor.run(params)

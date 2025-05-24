@@ -19,6 +19,8 @@ class Employee::EmployeeAddInteractor < ResponseService
         EmployeeService.add_employee_to_open_position(self)
     end
 
+    private
+
     def set_position
         @position = Position.find_by(id: position_id)
     end

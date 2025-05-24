@@ -45,6 +45,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
     add_foreign_key "positions", "jobs"
     add_foreign_key "positions", "departments"
     add_foreign_key "positions", "locations"
+    add_check_constraint "positions", "status IN ( #{Position::STATUSES.map { |s| "'#{s}'" }.join(", ")} )", name: "positions_status_check"
   
     # Employees
     create_table "employees", force: :cascade do |t|

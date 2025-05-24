@@ -3,104 +3,155 @@ require 'ostruct'
 class EmployeeService
   class << self
     attr_accessor :employee
-  end
 
-  def self.add_employee_to_open_position(ctx)
-    now = Time.current
+    def search_employees(params)
+      employees = Employee.all
 
-    Employee.transaction do
-      created = Employee.create!(
-        first_name:  ctx.first_name,
-        last_name:   ctx.last_name,
-        email:       ctx.email,
-        manager:     ctx.manager,
-        position:    ctx.position,
-        hire_date:   now.to_date,
-        created_at:  now.to_date,
-        updated_at:  now.to_date,
-        is_active:   true
-      )
+      if params.filter_by.present?
+        type, column, value = build_filter_condition(params.filter_by, params.filter_val)
 
-      ::EmploymentHistoryService.add_new_record(
-        OpenStruct.new(
-          employee:   created,
-          position:   created.position,
-          department: created.position.department,
-          manager:    created.manager,
-          start_date: now.to_date,
-          end_date:   nil
-        )
-      )
+        case type
+        when :exact
+          employees = employees.where(column => value)
+        when :ilike
+          employees = employees.where("#{column} ILIKE ?", value)
+        when :invalid
+          employees = employees.none
+        end
+      end
 
-      created.position.update!(status: Position::OCCUPIED)
+      if params.group_by.present?
+        group_column = params.group_by
 
-      self.employee = created
+        employees = employees
+                      .group(params.group_by)
+                      .pluck(params.group_by, Arel.sql("COUNT(*)"))
+                      .map { |group_val, count| { group_column => group_val, count: count } }
+      end
+
+      if params.order_by.present?
+        direction = params.order_val.to_s.downcase == 'desc' ? :desc : :asc
+        employees = employees.order(params.order_by => direction)
+      end
+
+      employees
     end
-  end
 
-  # https://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
-  def self.update_employee_information(ctx)
-    now        = Time.current
-    employee   = ctx.employee
+    def add_employee_to_open_position(params)
+      now = Date.current
 
-    Employee.transaction do
-      if (ctx.position && ctx.position != employee.position) ||
-        (ctx.manager  && ctx.manager  != employee.manager)
+      Employee.transaction do
+        created = Employee.create!(
+          first_name: params.first_name,
+          last_name:  params.last_name,
+          email:      params.email,
+          manager:    params.manager,
+          position:   params.position,
+          hire_date:  now,
+          created_at: now,
+          updated_at: now,
+          is_active:  true
+        )
+
         ::EmploymentHistoryService.add_new_record(
           OpenStruct.new(
-            employee:   employee,
-            position:   (ctx.position || employee.position),
-            department: (ctx.position.department || employee.position.department),
-            manager:    (ctx.manager || employee.manager),
-            start_date: employee.hire_date,
-            end_date:   now.to_date
+            employee:   created,
+            position:   created.position,
+            department: created.position.department,
+            manager:    created.manager,
+            start_date: now,
+            end_date:   nil
           )
         )
+
+        created.position.update!(status: Position::OCCUPIED)
+
+        self.employee = created
       end
+    end
 
-      updates = {}
-      updates[:first_name] = ctx.first_name if ctx.first_name.present?
-      updates[:last_name]  = ctx.last_name  if ctx.last_name.present?
-      updates[:email]      = ctx.email      if ctx.email.present?
-      updates[:manager]    = ctx.manager    if ctx.manager && ctx.manager != employee.manager
-      updates[:position]   = ctx.position   if ctx.position && ctx.position != employee.position
+    def update_employee_information(params)
+      now = Date.current
+      employee = params.employee
+      old_position = employee.position
 
-      employee.update!(updates) unless updates.empty?
+      Employee.transaction do
+        if (params.position && params.position != employee.position) ||
+          (params.manager && params.manager != employee.manager)
+          ::EmploymentHistoryService.add_new_record(
+            OpenStruct.new(
+              employee:   employee,
+              position:   (params.position || employee.position),
+              department: (params.position.department || employee.position.department),
+              manager:    (params.manager || employee.manager),
+              start_date: employee.hire_date,
+              end_date:   now
+            )
+          )
+        end
 
-      if updates.key?(:position)
-        employee.position.update!(status: Position::OCCUPIED)
+        updates = {}
+        updates[:first_name] = params.first_name if params.first_name.present?
+        updates[:last_name]  = params.last_name  if params.last_name.present?
+        updates[:email]      = params.email      if params.email.present?
+        updates[:manager]    = params.manager    if params.manager && params.manager != employee.manager
+        updates[:position]   = params.position   if params.position && params.position != employee.position
+
+        employee.update!(updates) unless updates.empty?
+
+        if updates.key?(:position)
+          employee.position.update!(status: Position::OCCUPIED)
+          old_position.update!(status: Position::OPEN)
+        end
+
+        self.employee = employee.reload
       end
-
-      self.employee = employee.reload
     end
-  end
 
-  def self.delete_employee_information(ctx)
-    employee = ctx.employee
-    last_position = employee.position
+    def delete_employee_information(params)
+      employee = params.employee
+      last_position = employee.position
 
-    Employee.transaction do
-      Employee.where(manager_id: employee.id).update_all(manager_id: nil)
+      Employee.transaction do
+        Employee.where(manager_id: employee.id).update_all(manager_id: nil)
+        EmploymentHistoryService.delete_employee_id(employee.id)
+        employee.destroy!
+        last_position.update!(status: Position::OPEN)
 
-      EmploymentHistoryService.delete_employee_id(employee.id)
-
-      employee.destroy!
-
-      last_position.update!(status: Position::OPEN)
-
-      self.employee = employee
+        self.employee = employee
+      end
     end
-  end
 
-  def self.fire_employee(ctx)
-    employee = ctx.employee
-    last_position = employee.position
+    def fire_employee(params)
+      employee = params.employee
+      last_position = employee.position
 
-    Employee.transaction do
-      employee.update!(is_active: false)
-      last_position.update!(status: Position::OPEN)
+      Employee.transaction do
+        employee.update!(is_active: false)
+        last_position.update!(status: Position::OPEN)
 
-      self.employee = employee
+        self.employee = employee
+      end
+    end
+
+    private
+
+    def build_filter_condition(column, value)
+      if %w[id manager_id position_id].include?(column)
+        [:exact, column, value.to_i]
+      elsif %w[is_active].include?(column)
+        [:exact, column, ActiveModel::Type::Boolean.new.cast(value)]
+      elsif %w[hire_date created_at updated_at].include?(column)
+        begin
+          date = Date.parse(value)
+          range = date.beginning_of_day..date.end_of_day
+          [:range, column, range]
+        rescue ArgumentError
+          [:invalid, nil, nil]
+        end
+      else
+        [:ilike, column, "%#{value}%"]
+      end
     end
   end
 end

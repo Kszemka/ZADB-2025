@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       get 'right_join'
       get 'full_outer_join'
       get 'cross_join'
+      get 'search'
     end
   end
 
@@ -25,6 +26,8 @@ Rails.application.routes.draw do
     collection do
       get  'all'
       get  'withDetails'
+      get  'search_by'
+      post 'create'
     end
   end
 end
