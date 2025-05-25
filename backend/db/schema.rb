@@ -75,7 +75,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-  add_foreign_key "employment_histories", "employees"
+  add_foreign_key "employment_histories", "employees", foreign_key: { on_delete: :cascade }
   add_foreign_key "employment_histories", "positions"
   add_foreign_key "employment_histories", "departments"
   add_foreign_key "employment_histories", "employees", column: "manager_id"
@@ -138,6 +138,57 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_18_010417) do
             AFTER INSERT OR UPDATE OR DELETE ON employees
             FOR EACH ROW
             EXECUTE PROCEDURE increment_operation_counter();
+      SQL
+
+      execute <<-SQL
+            CREATE FUNCTION increment_positions_operation()
+            RETURNS TRIGGER AS $$
+            BEGIN
+              INSERT INTO operations (name, counter, created_at, updated_at)
+              VALUES ('employment_history_insert', 1, NOW(), NOW())
+              ON CONFLICT (name) DO UPDATE
+              SET counter = operations.counter + 1,
+                  updated_at = NOW();
+              RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+  
+            CREATE TRIGGER increment_positions_trigger
+            AFTER INSERT ON employment_histories
+            FOR EACH ROW
+            EXECUTE PROCEDURE increment_positions_operation();
+      SQL
+
+      execute <<-SQL
+-- wersja funkcyjna na db na podstawie obsługi EmployeeService::delete_employee_information()
+CREATE OR REPLACE PROCEDURE soft_delete_employee(p_employee_id BIGINT)
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_position_id BIGINT;
+BEGIN
+  -- 1. Pobierz przypisaną pozycję
+  SELECT position_id INTO v_position_id FROM employees WHERE id = p_employee_id;
+
+  -- 2. Odłącz podwładnych
+  UPDATE employees
+  SET manager_id = NULL
+  WHERE manager_id = p_employee_id;
+
+  -- 3. Usuń historię zatrudnienia
+  DELETE FROM employment_histories
+  WHERE employee_id = p_employee_id;
+
+  -- 4. Oznacz pracownika jako nieaktywny
+  UPDATE employees
+  SET is_active = FALSE
+  WHERE id = p_employee_id;
+
+  -- 5. Ustaw status pozycji na 'OPEN'
+  UPDATE positions
+  SET status = 'OPEN'
+  WHERE id = v_position_id;
+END;
+$$;
       SQL
     end
 
