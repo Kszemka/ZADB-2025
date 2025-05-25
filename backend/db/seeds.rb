@@ -157,78 +157,77 @@ end
 # #   requested_date: '2025-05-10'
 # # )
 
-
 ActiveRecord::Base.connection.tables.each do |t|
   ActiveRecord::Base.connection.reset_pk_sequence!(t)
 end
 
 # DEPARTAMENTY
-hq      = Department.create!(name: 'Head Office')
-hr      = Department.create!(name: 'Human Resources', parent_department: hq)
-it      = Department.create!(name: 'IT', parent_department: hq)
-fin     = Department.create!(name: 'Finance', parent_department: hq)
-sales   = Department.create!(name: 'Sales', parent_department: hq)
+hq = Department.create!(name: 'Head Office')
+hr = Department.create!(name: 'Human Resources', parent_department: hq)
+it = Department.create!(name: 'IT', parent_department: hq)
+fin = Department.create!(name: 'Finance', parent_department: hq)
+sales = Department.create!(name: 'Sales', parent_department: hq)
 support = Department.create!(name: 'Support', parent_department: hq)
 
 # LOKALIZACJE
-warsaw  = Location.create!(city: 'Warsaw', state: 'Mazowieckie', country: 'Poland')
-krakow  = Location.create!(city: 'Kraków', state: 'Małopolskie', country: 'Poland')
-poznan  = Location.create!(city: 'Poznań', state: 'Wielkopolskie', country: 'Poland')
+warsaw = Location.create!(city: 'Warsaw', state: 'Mazowieckie', country: 'Poland')
+krakow = Location.create!(city: 'Kraków', state: 'Małopolskie', country: 'Poland')
+poznan = Location.create!(city: 'Poznań', state: 'Wielkopolskie', country: 'Poland')
 wroclaw = Location.create!(city: 'Wrocław', state: 'Dolnośląskie', country: 'Poland')
 
 # STANOWISKA
 jobs = [
-  Job.create!(code: 'ENG_I',   title: 'Software Engineer I',      min_salary: 8000,  max_salary: 12000),
-  Job.create!(code: 'ENG_II',  title: 'Software Engineer II',     min_salary: 12000, max_salary: 17000),
+  Job.create!(code: 'ENG_I', title: 'Software Engineer I', min_salary: 8000, max_salary: 12000),
+  Job.create!(code: 'ENG_II', title: 'Software Engineer II', min_salary: 12000, max_salary: 17000),
   Job.create!(code: 'ENG_III', title: 'Senior Software Engineer', min_salary: 16000, max_salary: 22000),
-  Job.create!(code: 'QA',      title: 'QA Engineer',              min_salary: 8000,  max_salary: 13000),
-  Job.create!(code: 'DEVOPS',  title: 'DevOps Engineer',          min_salary: 12000, max_salary: 18000),
-  Job.create!(code: 'PM',      title: 'Project Manager',          min_salary: 15000, max_salary: 21000),
-  Job.create!(code: 'HR_SPEC', title: 'HR Specialist',            min_salary: 6000,  max_salary: 9000),
-  Job.create!(code: 'SUPPORT', title: 'Support Specialist',       min_salary: 5000,  max_salary: 9000),
-  Job.create!(code: 'FIN_MGR', title: 'Finance Manager',          min_salary: 12000, max_salary: 18000),
-  Job.create!(code: 'SALES',   title: 'Sales Representative',     min_salary: 7000,  max_salary: 12000)
+  Job.create!(code: 'QA', title: 'QA Engineer', min_salary: 8000, max_salary: 13000),
+  Job.create!(code: 'DEVOPS', title: 'DevOps Engineer', min_salary: 12000, max_salary: 18000),
+  Job.create!(code: 'PM', title: 'Project Manager', min_salary: 15000, max_salary: 21000),
+  Job.create!(code: 'HR_SPEC', title: 'HR Specialist', min_salary: 6000, max_salary: 9000),
+  Job.create!(code: 'SUPPORT', title: 'Support Specialist', min_salary: 5000, max_salary: 9000),
+  Job.create!(code: 'FIN_MGR', title: 'Finance Manager', min_salary: 12000, max_salary: 18000),
+  Job.create!(code: 'SALES', title: 'Sales Representative', min_salary: 7000, max_salary: 12000)
 ]
 
 # STANOWISKA (POSITIONS)
 positions = []
 positions += [
-  Position.create!(job: jobs[0], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-01-10'),
-  Position.create!(job: jobs[0], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-02-15'),
-  Position.create!(job: jobs[0], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2023-03-01'),
-  Position.create!(job: jobs[0], department: it, location: poznan,  status: Position::OCCUPIED, posted_date: '2023-04-01'),
+  Position.create!(job: jobs[0], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-01-10'),
+  Position.create!(job: jobs[0], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-02-15'),
+  Position.create!(job: jobs[0], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2023-03-01'),
+  Position.create!(job: jobs[0], department: it, location: poznan, status: Position::OCCUPIED, posted_date: '2023-04-01'),
   Position.create!(job: jobs[0], department: it, location: wroclaw, status: Position::OCCUPIED, posted_date: '2023-05-01'),
-  Position.create!(job: jobs[0], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-06-01'),
-  Position.create!(job: jobs[0], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2023-07-01'),
-  Position.create!(job: jobs[0], department: it, location: poznan,  status: Position::OCCUPIED, posted_date: '2023-08-01'),
+  Position.create!(job: jobs[0], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-06-01'),
+  Position.create!(job: jobs[0], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2023-07-01'),
+  Position.create!(job: jobs[0], department: it, location: poznan, status: Position::OCCUPIED, posted_date: '2023-08-01'),
   Position.create!(job: jobs[0], department: it, location: wroclaw, status: Position::OCCUPIED, posted_date: '2023-09-01'),
-  Position.create!(job: jobs[0], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-10-01'),
+  Position.create!(job: jobs[0], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-10-01'),
 
-  Position.create!(job: jobs[1], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-11-01'),
-  Position.create!(job: jobs[1], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2023-12-01'),
-  Position.create!(job: jobs[1], department: it, location: poznan,  status: Position::OCCUPIED, posted_date: '2024-01-01'),
+  Position.create!(job: jobs[1], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-11-01'),
+  Position.create!(job: jobs[1], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2023-12-01'),
+  Position.create!(job: jobs[1], department: it, location: poznan, status: Position::OCCUPIED, posted_date: '2024-01-01'),
   Position.create!(job: jobs[1], department: it, location: wroclaw, status: Position::OCCUPIED, posted_date: '2024-02-01'),
-  Position.create!(job: jobs[1], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2024-03-01'),
+  Position.create!(job: jobs[1], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2024-03-01'),
 
-  Position.create!(job: jobs[2], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2024-04-01'),
-  Position.create!(job: jobs[2], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2024-05-01'),
-  Position.create!(job: jobs[2], department: it, location: poznan,  status: Position::OCCUPIED, posted_date: '2024-06-01'),
+  Position.create!(job: jobs[2], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2024-04-01'),
+  Position.create!(job: jobs[2], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2024-05-01'),
+  Position.create!(job: jobs[2], department: it, location: poznan, status: Position::OCCUPIED, posted_date: '2024-06-01'),
 
-  Position.create!(job: jobs[3], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2024-07-01'),
-  Position.create!(job: jobs[3], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2024-08-01'),
-  Position.create!(job: jobs[3], department: it, location: poznan,  status: Position::OCCUPIED, posted_date: '2024-09-01'),
+  Position.create!(job: jobs[3], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2024-07-01'),
+  Position.create!(job: jobs[3], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2024-08-01'),
+  Position.create!(job: jobs[3], department: it, location: poznan, status: Position::OCCUPIED, posted_date: '2024-09-01'),
 
-  Position.create!(job: jobs[4], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2024-10-01'),
+  Position.create!(job: jobs[4], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2024-10-01'),
   Position.create!(job: jobs[4], department: it, location: wroclaw, status: Position::OCCUPIED, posted_date: '2024-11-01'),
 
-  Position.create!(job: jobs[5], department: it, location: warsaw,  status: Position::OCCUPIED, posted_date: '2024-12-01'),
-  Position.create!(job: jobs[5], department: it, location: krakow,  status: Position::OCCUPIED, posted_date: '2025-01-01'),
+  Position.create!(job: jobs[5], department: it, location: warsaw, status: Position::OCCUPIED, posted_date: '2024-12-01'),
+  Position.create!(job: jobs[5], department: it, location: krakow, status: Position::OCCUPIED, posted_date: '2025-01-01'),
 
-  Position.create!(job: jobs[6], department: hr, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-01-15'),
+  Position.create!(job: jobs[6], department: hr, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-01-15'),
   Position.create!(job: jobs[7], department: support, location: poznan, status: Position::OCCUPIED, posted_date: '2023-02-15'),
   Position.create!(job: jobs[7], department: support, location: wroclaw, status: Position::OCCUPIED, posted_date: '2023-03-15'),
 
-  Position.create!(job: jobs[8], department: fin, location: warsaw,  status: Position::OCCUPIED, posted_date: '2023-04-15'),
+  Position.create!(job: jobs[8], department: fin, location: warsaw, status: Position::OCCUPIED, posted_date: '2023-04-15'),
   Position.create!(job: jobs[9], department: sales, location: wroclaw, status: Position::OCCUPIED, posted_date: '2023-05-15')
 ]
 
@@ -272,7 +271,7 @@ employee_data.each_with_index do |(fn, ln, email), i|
     first_name: fn,
     last_name: ln,
     email: email,
-    hire_date: (Date.parse("2023-01-01") + i*10),
+    hire_date: (Date.parse("2023-01-01") + i * 10),
     position: positions[i],
     is_active: true
   )
@@ -287,16 +286,15 @@ end
 
 # HISTORIA ZATRUDNIENIA (EMPLOYMENT HISTORY)
 employees.each do |emp|
-  if emp.manager != nil
-    EmploymentHistory.create!(
-      employee: emp,
-      position: emp.position,
-      start_date: emp.hire_date,
-      end_date: nil,
-      department: emp.position.department,
-      manager: emp.manager
-    )
-  end
+  history = EmploymentHistory.create!(
+    employee: emp,
+    position: emp.position,
+    start_date: emp.hire_date,
+    end_date: nil,
+    department: emp.position.department,
+    manager: emp.manager,
+  )
+  emp.update!(position_history_ids: emp.position_history_ids + [history.id])
 end
 
 # WYNAGRODZENIA (COMPENSATIONS)
@@ -310,26 +308,19 @@ employees.each do |emp|
   )
 end
 
-# WNIOSKI URLOPOWE (TIME OFF REQUESTS)
-employees[0..19].each_with_index do |emp, idx|
-  status = ['APPROVED', 'PENDING', 'REJECTED'][idx % 3]
-  if status != 'PENDING'
-    approved_by =  managers[(idx+1) % 3].id
-    approved_date = Date.parse("2025-05-05") + idx
-  else
-    approved_date = nil
-    approved_by = nil
+projects = [
+  Project.create!(name: 'AI Chatbot', code: 'AI001', start_date: '2024-01-01'),
+  Project.create!(name: 'CRM Redesign', code: 'CRM002', start_date: '2024-02-15'),
+  Project.create!(name: 'Mobile App', code: 'MOB003', start_date: '2024-03-10'),
+  Project.create!(name: 'Data Migration', code: 'DATA004', start_date: '2024-04-01'),
+  Project.create!(name: 'HR Portal', code: 'HR005', start_date: '2024-05-01')
+]
+
+# PRZYPISANIE PRACOWNIKÓW DO PROJEKTÓW
+employees.each_with_index do |employee, i|
+  projects.sample(2).each do |project|
+    employee.projects << project unless employee.projects.include?(project)
   end
-  TimeOffRequest.create!(
-    employee: emp,
-    request_type: ['VACATION', 'SICK', 'UNPAID'][idx % 3],
-    start_date: Date.parse("2025-06-01") + idx,
-    end_date: Date.parse("2025-06-05") + idx,
-    status: status,
-    requested_date: Date.parse("2025-05-01") + idx,
-    approved_by: approved_by, #managers[(idx+1) % 3].id,
-    approved_date: approved_date #Date.parse("2025-05-05") + idx
-  )
 end
 
 # Dodajemy kilka otwartych pozycji (bez przypisanego pracownika)

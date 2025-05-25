@@ -19,6 +19,9 @@ Rails.application.routes.draw do
       get 'full_outer_join'
       get 'cross_join'
       get 'search'
+      get 'projects'
+      get 'history'
+      put 'give_raise_for_all'
     end
   end
 

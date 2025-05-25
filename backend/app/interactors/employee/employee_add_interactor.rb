@@ -12,7 +12,8 @@ class Employee::EmployeeAddInteractor < ResponseService
         set_manager
     end
 
-    validates :first_name, :last_name, :email, presence: true
+    validates :first_name, :last_name, presence: true
+    validates :manager_id, presence: true
     validates_with EmployeeAddValidator
 
     def execute

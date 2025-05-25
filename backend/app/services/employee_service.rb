@@ -37,6 +37,29 @@ class EmployeeService
       employees
     end
 
+    def search_projects(params)
+      Employee.find_by(email: params[:email]).projects.pluck(:name)
+    end
+
+    def search_history(params)
+      Employee.find_by(email: params[:email])&.employment_histories
+    end
+
+    def give_raise(params)
+      raise_percent = params[:raise].to_f
+
+      ActiveRecord::Base.transaction do
+        Compensation.find_each do |comp|
+          new_amount = (comp.amount * (1 + raise_percent / 100)).round(2)
+          comp.update!(amount: new_amount)
+        end
+      end
+
+      :ok
+    rescue => e
+      :rollback
+    end
+
     def add_employee_to_open_position(params)
       now = Date.current
 
@@ -53,7 +76,7 @@ class EmployeeService
           is_active:  true
         )
 
-        ::EmploymentHistoryService.add_new_record(
+        history = ::EmploymentHistoryService.add_new_record(
           OpenStruct.new(
             employee:   created,
             position:   created.position,
@@ -63,6 +86,8 @@ class EmployeeService
             end_date:   nil
           )
         )
+
+        created.update!(position_history_ids: [history.position.id])
 
         created.position.update!(status: Position::OCCUPIED)
 
@@ -78,7 +103,7 @@ class EmployeeService
       Employee.transaction do
         if (params.position && params.position != employee.position) ||
           (params.manager && params.manager != employee.manager)
-          ::EmploymentHistoryService.add_new_record(
+          history = ::EmploymentHistoryService.add_new_record(
             OpenStruct.new(
               employee:   employee,
               position:   (params.position || employee.position),
@@ -88,6 +113,7 @@ class EmployeeService
               end_date:   now
             )
           )
+          employee.update!(position_history_ids: employee.position_history_ids + [history.position.id])
         end
 
         updates = {}

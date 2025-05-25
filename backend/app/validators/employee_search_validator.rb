@@ -13,5 +13,9 @@ class EmployeeSearchValidator < ActiveModel::Validator
     if record.order_by.present? && !allowed_columns.include?(record.order_by)
       record.errors.add(:order_by, "is not a valid column.")
     end
+
+    if record.order_by.present? && record.group_by.present?
+      record.errors.add(:order_by, "is not processable by the group_by column.")
+    end
   end
 end
